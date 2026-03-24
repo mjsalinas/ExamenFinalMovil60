@@ -14,6 +14,7 @@ import CustomInput from '../components/CustomInput';
 import CustomButton from '../components/CustomButton';
 import { useAppDispatch } from '../store/hooks';
 import { addExpense } from '../store/slices/expenseSlice';
+import { supabase } from '../services/supabaseClient';
 
 // ============================================================
 // PANTALLA: Agregar Gasto
@@ -66,14 +67,26 @@ export default function AddExpenseScreen() {
 
     setIsLoading(true);
     try {
-      // TODO: Insertar el gasto en Supabase (tabla 'expenses')
+      const { data, error } = await supabase
+        .from('expenses')
+        .insert({
+          title: title.trim(),
+          amount: Number(amount),
+          category,
+        })
+        .select()
+        .single();
+
+      if (error) {
+        throw new Error(error.message);
+      }
 
       const newExpense: Expense = {
-        id: Date.now().toString(),
-        title: title.trim(),
-        amount: Number(amount),
-        category,
-        createdAt: new Date().toISOString(),
+        id: data.id,
+        title: data.title,
+        amount: data.amount,
+        category: data.category,
+        createdAt: data.created_at,
       };
 
       dispatch(addExpense(newExpense));
