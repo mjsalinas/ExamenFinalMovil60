@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
-// Definimos la interfaz para un gasto (Expense)
+//interfaz para un gasto Expense)
 export interface Expense {
   id: string;
   description: string;
@@ -13,18 +13,18 @@ interface ExpenseState {
 }
 
 const initialState: ExpenseState = {
-  expenses: [], // Estado inicial: un arreglo vacío
+  expenses: [], 
 };
 
 export const expenseSlice = createSlice({
   name: 'expenses',
   initialState,
   reducers: {
-    // Acción addExpense: agrega un gasto al array
+    
     addExpense: (state, action: PayloadAction<Expense>) => {
       state.expenses.push(action.payload);
     },
-    // Acción setExpenses: reemplaza todo el estado
+    
     setExpenses: (state, action: PayloadAction<Expense[]>) => {
       state.expenses = action.payload;
     },

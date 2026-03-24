@@ -13,15 +13,10 @@ import { ExpenseCategory } from '../types';
 import CustomInput from '../components/CustomInput';
 import CustomButton from '../components/CustomButton';
 
-// ============================================================
-// PANTALLA: Agregar Gasto
-// ============================================================
-// TODO (Inciso D.2): Al presionar "Guardar Gasto":
-//   1. Inserta el gasto en Supabase (tabla 'expenses')
-//   2. Despacha addExpense al store de Redux con los datos guardados
-//   3. Limpia el formulario
-//   4. Muestra un Alert de confirmación
-// ============================================================
+// IMPORTS PARA EL EXAMEN (INCISO D.2)
+import { useDispatch } from 'react-redux';
+import { addExpense } from '../store/expenseSlice'; 
+import { supabase } from '../lib/supabase'; 
 
 type CategoryOption = {
   value: ExpenseCategory;
@@ -37,6 +32,8 @@ const CATEGORIES: CategoryOption[] = [
 ];
 
 export default function AddExpenseScreen() {
+  const dispatch = useDispatch(); // Hook de Redux
+  
   const [title, setTitle] = useState('');
   const [amount, setAmount] = useState('');
   const [category, setCategory] = useState<ExpenseCategory>('food');
@@ -63,16 +60,32 @@ export default function AddExpenseScreen() {
 
     setIsLoading(true);
     try {
-      // TODO (Inciso D.2): Reemplaza este bloque con:
-      //   - Llamada a Supabase para insertar el gasto
-      //   - Dispatch de addExpense al store de Redux
-      //   - Actualmente solo muestra un Alert de placeholder
+      
+      const { data, error } = await supabase
+        .from('expenses')
+        .insert([
+          { 
+            title: title, 
+            amount: parseFloat(amount), 
+            category: category,
+            date: new Date().toISOString() 
+          }
+        ])
+        .select()
+        .single();
 
+      if (error) throw error;
+
+      
+      dispatch(addExpense(data));
+
+      
       Alert.alert(
-        '⚠️ Pendiente de implementar',
-        'Conecta Supabase y Redux para guardar el gasto.',
+        '¡Gasto Guardado!',
+        'Los datos se han sincronizado correctamente.',
         [{ text: 'OK', onPress: clearForm }]
       );
+
     } catch (err: unknown) {
       const message = err instanceof Error ? err.message : 'Error al guardar el gasto';
       Alert.alert('Error', message);
@@ -93,7 +106,6 @@ export default function AddExpenseScreen() {
       >
         <Text style={styles.sectionTitle}>Nuevo gasto</Text>
 
-        {/* Campos de texto */}
         <View style={styles.card}>
           <CustomInput
             label="Nombre del gasto"
@@ -114,7 +126,6 @@ export default function AddExpenseScreen() {
           />
         </View>
 
-        {/* Selector de categoría */}
         <Text style={styles.categoryLabel}>Categoría</Text>
         <View style={styles.categoriesGrid}>
           {CATEGORIES.map(cat => {
@@ -140,7 +151,6 @@ export default function AddExpenseScreen() {
           })}
         </View>
 
-        {/* Botón guardar */}
         <CustomButton
           label="Guardar Gasto"
           onPress={handleSave}
