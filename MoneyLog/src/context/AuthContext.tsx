@@ -9,6 +9,7 @@ import { User } from '../types';
 // temporal (mock). Tu tarea es reemplazarlas con llamadas reales a
 // Supabase Auth en los incisos del Examen Final.
 // ============================================================
+//tengo que hacer este inciso ayudame
 
 type AuthContextType = {
   user: User | null;
