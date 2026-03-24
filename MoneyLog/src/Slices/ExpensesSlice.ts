@@ -9,21 +9,13 @@ interface Book{
     publishDate: string;
 }
 
-//const initialState:Book={
-  //  name: "",
-    //author: "",
-    //genre: "",
-    //rating: "",
-    //publishDate: ""
-//}
-
 interface BooksState{
     books: Book[],
     
 };
 
 const initialState:BooksState={
-    books:[],
+    books:[]
     book:{
         name: "",
         author: "",
