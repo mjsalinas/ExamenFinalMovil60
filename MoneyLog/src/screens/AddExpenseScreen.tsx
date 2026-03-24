@@ -9,9 +9,12 @@ import {
   Alert,
   TouchableOpacity,
 } from 'react-native';
+import { useDispatch } from 'react-redux';
 import { ExpenseCategory } from '../types';
 import CustomInput from '../components/CustomInput';
 import CustomButton from '../components/CustomButton';
+import { addExpense } from '../store/expenseSlice';
+import { AppDispatch } from '../store/store';
 
 // ============================================================
 // PANTALLA: Agregar Gasto
@@ -37,6 +40,7 @@ const CATEGORIES: CategoryOption[] = [
 ];
 
 export default function AddExpenseScreen() {
+  const dispatch = useDispatch<AppDispatch>();
   const [title, setTitle] = useState('');
   const [amount, setAmount] = useState('');
   const [category, setCategory] = useState<ExpenseCategory>('food');
@@ -63,14 +67,19 @@ export default function AddExpenseScreen() {
 
     setIsLoading(true);
     try {
-      // TODO (Inciso D.2): Reemplaza este bloque con:
-      //   - Llamada a Supabase para insertar el gasto
-      //   - Dispatch de addExpense al store de Redux
-      //   - Actualmente solo muestra un Alert de placeholder
+      const newExpense = {
+        id: Date.now().toString(),
+        title,
+        amount: Number(amount),
+        category,
+        createdAt: new Date().toISOString(),
+      };
+
+      dispatch(addExpense(newExpense));
 
       Alert.alert(
-        '⚠️ Pendiente de implementar',
-        'Conecta Supabase y Redux para guardar el gasto.',
+        'Éxito',
+        'Gasto guardado correctamente.',
         [{ text: 'OK', onPress: clearForm }]
       );
     } catch (err: unknown) {
