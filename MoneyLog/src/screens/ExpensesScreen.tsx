@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import {
   View,
   Text,
@@ -6,9 +6,13 @@ import {
   StyleSheet,
   TouchableOpacity,
 } from 'react-native';
-import { Expense } from '../types';
+import { useSelector, useDispatch } from 'react-redux';
+import { Expense, ExpenseCategory } from '../types';
 import ExpenseCard from '../components/ExpenseCard';
 import { useAuth } from '../context/AuthContext';
+import { RootState, AppDispatch } from '../store/store';
+import { setExpenses } from '../store/expenseSlice';
+import { supabase } from '../supabase/supabaseClient';
 
 // ============================================================
 // DATOS DUMMY — Solo para desarrollo visual
@@ -18,57 +22,6 @@ import { useAuth } from '../context/AuthContext';
 // Usa useSelector para leer del store y useEffect para
 // despachar la carga inicial de datos desde Supabase.
 // ============================================================
-const DUMMY_EXPENSES: Expense[] = [
-  {
-    id: '1',
-    title: 'Café y desayuno',
-    amount: 85,
-    category: 'food',
-    createdAt: '2025-03-22T09:15:00Z',
-  },
-  {
-    id: '2',
-    title: 'Transporte Uber',
-    amount: 62,
-    category: 'transport',
-    createdAt: '2025-03-22T08:00:00Z',
-  },
-  {
-    id: '3',
-    title: 'Cine con amigos',
-    amount: 150,
-    category: 'entertainment',
-    createdAt: '2025-03-21T20:30:00Z',
-  },
-  {
-    id: '4',
-    title: 'Supermercado semanal',
-    amount: 480,
-    category: 'food',
-    createdAt: '2025-03-21T16:00:00Z',
-  },
-  {
-    id: '5',
-    title: 'Gasolina',
-    amount: 320,
-    category: 'transport',
-    createdAt: '2025-03-20T11:00:00Z',
-  },
-  {
-    id: '6',
-    title: 'Suscripción streaming',
-    amount: 199,
-    category: 'entertainment',
-    createdAt: '2025-03-19T00:00:00Z',
-  },
-  {
-    id: '7',
-    title: 'Medicamento',
-    amount: 95,
-    category: 'other',
-    createdAt: '2025-03-18T14:00:00Z',
-  },
-];
 
 function calculateTotal(expenses: Expense[]): number {
   return expenses.reduce((sum, e) => sum + e.amount, 0);
@@ -76,9 +29,36 @@ function calculateTotal(expenses: Expense[]): number {
 
 export default function ExpensesScreen() {
   const { user, logout } = useAuth();
+  const dispatch = useDispatch<AppDispatch>();
 
-  // TODO (Inciso D.3): Reemplaza esta línea con useSelector
-  const expenses = DUMMY_EXPENSES;
+  const expenses = useSelector((state: RootState) => state.expenses.expenses);
+
+  useEffect(() => {
+    async function loadExpenses() {
+      if (!user?.id) return;
+      const { data, error } = await supabase
+        .from('expenses')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false });
+      if (error) {
+        console.error('Error loading expenses:', error);
+        return;
+      }
+      if (data) {
+        const formattedExpenses: Expense[] = data.map((item: any) => ({
+          id: item.id,
+          title: item.title,
+          amount: item.amount,
+          category: item.category as ExpenseCategory,
+          createdAt: item.created_at,
+          userId: item.user_id,
+        }));
+        dispatch(setExpenses(formattedExpenses));
+      }
+    }
+    loadExpenses();
+  }, [user?.id]);
 
   const total = calculateTotal(expenses);
 

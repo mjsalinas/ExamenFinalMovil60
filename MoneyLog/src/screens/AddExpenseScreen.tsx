@@ -15,6 +15,8 @@ import CustomInput from '../components/CustomInput';
 import CustomButton from '../components/CustomButton';
 import { addExpense } from '../store/expenseSlice';
 import { AppDispatch } from '../store/store';
+import { supabase } from '../supabase/supabaseClient';
+import { useAuth } from '../context/AuthContext';
 
 // ============================================================
 // PANTALLA: Agregar Gasto
@@ -41,6 +43,7 @@ const CATEGORIES: CategoryOption[] = [
 
 export default function AddExpenseScreen() {
   const dispatch = useDispatch<AppDispatch>();
+  const { user } = useAuth();
   const [title, setTitle] = useState('');
   const [amount, setAmount] = useState('');
   const [category, setCategory] = useState<ExpenseCategory>('food');
@@ -73,7 +76,18 @@ export default function AddExpenseScreen() {
         amount: Number(amount),
         category,
         createdAt: new Date().toISOString(),
+        userId: user?.id,
       };
+
+      if (user?.id) {
+        const { error } = await supabase.from('expenses').insert({
+          title,
+          amount: Number(amount),
+          category,
+          user_id: user.id,
+        });
+        if (error) throw error;
+      }
 
       dispatch(addExpense(newExpense));
 
