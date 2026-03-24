@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 import { User } from '../types';
+import { supabase } from '../lib/supabase';
 
 // ============================================================
 // AUTH CONTEXT
@@ -15,7 +16,7 @@ type AuthContextType = {
   isLoading: boolean;
   login: (email: string, password: string) => Promise<void>;
   register: (name: string, email: string, password: string) => Promise<void>;
-  logout: () => void;
+  logout: () => Promise<void>;
 };
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -25,29 +26,56 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(false);
 
   // TODO (Inciso C.1): Reemplaza esta función con supabase.auth.signInWithPassword
-  const login = async (email: string, _password: string) => {
+  const login = async (email: string, password: string) => {
     setIsLoading(true);
     try {
-      // Implementación temporal — elimina esto al integrar Supabase
-      setUser({ id: 'mock-id', email });
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      if (error) throw error;
+
+      if (data.user) {
+        setUser({
+          id: data.user.id,
+          email: data.user.email ?? '',
+        });
+      }
     } finally {
       setIsLoading(false);
     }
   };
 
   // TODO (Inciso C.2): Reemplaza esta función con supabase.auth.signUp
-  const register = async (name: string, email: string, _password: string) => {
+  const register = async (name: string, email: string, password: string) => {
     setIsLoading(true);
     try {
-      // Implementación temporal — elimina esto al integrar Supabase
-      setUser({ id: 'mock-id', email, name });
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: { name },
+        },
+      });
+
+      if (error) throw error;
+
+      if (data.user) {
+        setUser({
+          id: data.user.id,
+          email: data.user.email ?? '',
+          name,
+        });
+      }
     } finally {
       setIsLoading(false);
     }
   };
 
   // TODO (Inciso C.3): Implementa con supabase.auth.signOut
-  const logout = () => {
+  const logout = async () => {
+    await supabase.auth.signOut();
     setUser(null);
   };
 
