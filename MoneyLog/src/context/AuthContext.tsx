@@ -1,14 +1,6 @@
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 import { User } from '../types';
-
-// ============================================================
-// AUTH CONTEXT
-// ============================================================
-// NOTA PARA EL ESTUDIANTE:
-// Las funciones login, register y logout contienen una implementación
-// temporal (mock). Tu tarea es reemplazarlas con llamadas reales a
-// Supabase Auth en los incisos del Examen Final.
-// ============================================================
+import { supabase } from '../lib/supabaseClient';
 
 type AuthContextType = {
   user: User | null;
@@ -24,30 +16,43 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
-  // TODO (Inciso C.1): Reemplaza esta función con supabase.auth.signInWithPassword
-  const login = async (email: string, _password: string) => {
+  const login = async (email: string, password: string) => {
     setIsLoading(true);
     try {
-      // Implementación temporal — elimina esto al integrar Supabase
-      setUser({ id: 'mock-id', email });
+      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+      if (error) throw new Error(error.message);
+      setUser({
+        id: data.user.id,
+        email: data.user.email ?? email,
+        name: data.user.user_metadata?.name,
+      });
     } finally {
       setIsLoading(false);
     }
   };
 
-  // TODO (Inciso C.2): Reemplaza esta función con supabase.auth.signUp
-  const register = async (name: string, email: string, _password: string) => {
+  const register = async (name: string, email: string, password: string) => {
     setIsLoading(true);
     try {
-      // Implementación temporal — elimina esto al integrar Supabase
-      setUser({ id: 'mock-id', email, name });
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: { data: { name } },
+      });
+      if (error) throw new Error(error.message);
+      if (!data.user) throw new Error('No se pudo crear el usuario');
+      setUser({
+        id: data.user.id,
+        email: data.user.email ?? email,
+        name,
+      });
     } finally {
       setIsLoading(false);
     }
   };
 
-  // TODO (Inciso C.3): Implementa con supabase.auth.signOut
-  const logout = () => {
+  const logout = async () => {
+    await supabase.auth.signOut();
     setUser(null);
   };
 
