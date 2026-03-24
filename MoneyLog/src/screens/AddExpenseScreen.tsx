@@ -79,16 +79,6 @@ export default function AddExpenseScreen() {
         userId: user?.id,
       };
 
-      if (user?.id) {
-        const { error } = await supabase.from('expenses').insert({
-          title,
-          amount: Number(amount),
-          category,
-          user_id: user.id,
-        });
-        if (error) throw error;
-      }
-
       dispatch(addExpense(newExpense));
 
       Alert.alert(

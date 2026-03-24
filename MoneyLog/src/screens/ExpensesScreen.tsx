@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import {
   View,
   Text,
@@ -6,13 +6,11 @@ import {
   StyleSheet,
   TouchableOpacity,
 } from 'react-native';
-import { useSelector, useDispatch } from 'react-redux';
-import { Expense, ExpenseCategory } from '../types';
+import { useSelector } from 'react-redux';
+import { Expense } from '../types';
 import ExpenseCard from '../components/ExpenseCard';
 import { useAuth } from '../context/AuthContext';
-import { RootState, AppDispatch } from '../store/store';
-import { setExpenses } from '../store/expenseSlice';
-import { supabase } from '../supabase/supabaseClient';
+import { RootState } from '../store/store';
 
 // ============================================================
 // DATOS DUMMY — Solo para desarrollo visual
@@ -29,36 +27,8 @@ function calculateTotal(expenses: Expense[]): number {
 
 export default function ExpensesScreen() {
   const { user, logout } = useAuth();
-  const dispatch = useDispatch<AppDispatch>();
 
   const expenses = useSelector((state: RootState) => state.expenses.expenses);
-
-  useEffect(() => {
-    async function loadExpenses() {
-      if (!user?.id) return;
-      const { data, error } = await supabase
-        .from('expenses')
-        .select('*')
-        .eq('user_id', user.id)
-        .order('created_at', { ascending: false });
-      if (error) {
-        console.error('Error loading expenses:', error);
-        return;
-      }
-      if (data) {
-        const formattedExpenses: Expense[] = data.map((item: any) => ({
-          id: item.id,
-          title: item.title,
-          amount: item.amount,
-          category: item.category as ExpenseCategory,
-          createdAt: item.created_at,
-          userId: item.user_id,
-        }));
-        dispatch(setExpenses(formattedExpenses));
-      }
-    }
-    loadExpenses();
-  }, [user?.id]);
 
   const total = calculateTotal(expenses);
 
