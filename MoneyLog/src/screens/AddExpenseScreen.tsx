@@ -15,6 +15,18 @@ import CustomInput from '../components/CustomInput';
 import CustomButton from '../components/CustomButton';
 import { addExpense } from '../store/expenseSlice';
 
+// ============================================================
+// PANTALLA: Agregar Gasto
+// ============================================================
+// TODO (Inciso D.2): Al presionar "Guardar Gasto":
+//   1. Inserta el gasto en Supabase (tabla 'expenses')
+//   2. Despacha addExpense al store de Redux con los datos guardados
+//   3. Limpia el formulario
+//   4. Muestra un Alert de confirmación
+// ============================================================
+
+
+
 type CategoryOption = {
   value: ExpenseCategory;
   label: string;
@@ -60,6 +72,11 @@ export default function AddExpenseScreen() {
 
     setIsLoading(true);
     try {
+      // TODO (Inciso D.2): Reemplaza este bloque con:
+      //   - Llamada a Supabase para insertar el gasto
+      //   - Dispatch de addExpense al store de Redux
+      //   - Actualmente solo muestra un Alert de placeholder
+
       const newExpense: Expense = {
         id: Date.now().toString(),
         title: title.trim(),
@@ -96,6 +113,8 @@ export default function AddExpenseScreen() {
       >
         <Text style={styles.sectionTitle}>Nuevo gasto</Text>
 
+
+        {/* Campos de texto */}
         <View style={styles.card}>
           <CustomInput
             label="Nombre del gasto"
@@ -115,7 +134,8 @@ export default function AddExpenseScreen() {
             error={submitted ? amountError : undefined}
           />
         </View>
-
+        
+        {/* Selector de categoría */}
         <Text style={styles.categoryLabel}>Categoría</Text>
         <View style={styles.categoriesGrid}>
           {CATEGORIES.map(cat => {
@@ -141,6 +161,7 @@ export default function AddExpenseScreen() {
           })}
         </View>
 
+        {/* Botón guardar */}
         <CustomButton
           label="Guardar Gasto"
           onPress={handleSave}
