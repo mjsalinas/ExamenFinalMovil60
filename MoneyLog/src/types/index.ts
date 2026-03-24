@@ -11,7 +11,7 @@ export type Expense = {
   title: string;
   amount: number;
   category: ExpenseCategory;
-  createdAt: string;
+  created_at: string;
   userId?: string;
 };
 

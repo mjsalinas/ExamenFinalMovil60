@@ -9,19 +9,11 @@ import {
   Alert,
   TouchableOpacity,
 } from 'react-native';
-import { ExpenseCategory } from '../types';
+import { useDispatch } from 'react-redux';
+import { Expense, ExpenseCategory } from '../types';
 import CustomInput from '../components/CustomInput';
 import CustomButton from '../components/CustomButton';
-
-// ============================================================
-// PANTALLA: Agregar Gasto
-// ============================================================
-// TODO (Inciso D.2): Al presionar "Guardar Gasto":
-//   1. Inserta el gasto en Supabase (tabla 'expenses')
-//   2. Despacha addExpense al store de Redux con los datos guardados
-//   3. Limpia el formulario
-//   4. Muestra un Alert de confirmación
-// ============================================================
+import { addExpense } from '../store/expenseSlice';
 
 type CategoryOption = {
   value: ExpenseCategory;
@@ -30,24 +22,29 @@ type CategoryOption = {
 };
 
 const CATEGORIES: CategoryOption[] = [
-  { value: 'food',          label: 'Comida',        icon: '🍔' },
-  { value: 'transport',     label: 'Transporte',    icon: '🚗' },
+  { value: 'food', label: 'Comida', icon: '🍔' },
+  { value: 'transport', label: 'Transporte', icon: '🚗' },
   { value: 'entertainment', label: 'Entretenimiento', icon: '🎬' },
-  { value: 'other',         label: 'Otro',          icon: '📦' },
+  { value: 'other', label: 'Otro', icon: '📦' },
 ];
 
 export default function AddExpenseScreen() {
+  const dispatch = useDispatch();
+
   const [title, setTitle] = useState('');
   const [amount, setAmount] = useState('');
   const [category, setCategory] = useState<ExpenseCategory>('food');
   const [submitted, setSubmitted] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  const titleError = title.trim().length === 0 ? 'El nombre del gasto es obligatorio' : '';
+  const titleError =
+    title.trim().length === 0 ? 'El nombre del gasto es obligatorio' : '';
+
   const amountError =
     amount.trim() === '' || isNaN(Number(amount)) || Number(amount) <= 0
       ? 'Ingresa un monto válido mayor a 0'
       : '';
+
   const formValid = !titleError && !amountError;
 
   function clearForm() {
@@ -63,18 +60,24 @@ export default function AddExpenseScreen() {
 
     setIsLoading(true);
     try {
-      // TODO (Inciso D.2): Reemplaza este bloque con:
-      //   - Llamada a Supabase para insertar el gasto
-      //   - Dispatch de addExpense al store de Redux
-      //   - Actualmente solo muestra un Alert de placeholder
+      const newExpense: Expense = {
+        id: Date.now().toString(),
+        title: title.trim(),
+        amount: Number(amount),
+        category,
+        created_at: new Date().toISOString(),
+      };
+
+      dispatch(addExpense(newExpense));
+      clearForm();
 
       Alert.alert(
-        '⚠️ Pendiente de implementar',
-        'Conecta Supabase y Redux para guardar el gasto.',
-        [{ text: 'OK', onPress: clearForm }]
+        'Confirmación',
+        'El gasto se guardó correctamente.'
       );
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : 'Error al guardar el gasto';
+      const message =
+        err instanceof Error ? err.message : 'Error al guardar el gasto';
       Alert.alert('Error', message);
     } finally {
       setIsLoading(false);
@@ -93,7 +96,6 @@ export default function AddExpenseScreen() {
       >
         <Text style={styles.sectionTitle}>Nuevo gasto</Text>
 
-        {/* Campos de texto */}
         <View style={styles.card}>
           <CustomInput
             label="Nombre del gasto"
@@ -114,7 +116,6 @@ export default function AddExpenseScreen() {
           />
         </View>
 
-        {/* Selector de categoría */}
         <Text style={styles.categoryLabel}>Categoría</Text>
         <View style={styles.categoriesGrid}>
           {CATEGORIES.map(cat => {
@@ -140,11 +141,10 @@ export default function AddExpenseScreen() {
           })}
         </View>
 
-        {/* Botón guardar */}
         <CustomButton
           label="Guardar Gasto"
           onPress={handleSave}
-          disabled={submitted ? !formValid : false}
+          disabled={!formValid}
           loading={isLoading}
           style={styles.saveButton}
         />

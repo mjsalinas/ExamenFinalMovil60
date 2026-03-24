@@ -1,10 +1,11 @@
 import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-//import { Provider } from 'react-redux';
+import { Provider } from 'react-redux';
 import { AuthProvider } from './src/context/AuthContext';
 import AppNavigator from './src/navigation/AppNavigator';
-//import { store } from './src/store/store';
+import { store } from './src/store/store';
+
 
 // ============================================================
 // PUNTO DE ENTRADA — MoneyLog
@@ -18,11 +19,13 @@ import AppNavigator from './src/navigation/AppNavigator';
 export default function App() {
   return (
     <SafeAreaProvider>
+      <Provider store={store}>
         <AuthProvider>
           <NavigationContainer>
             <AppNavigator />
           </NavigationContainer>
         </AuthProvider>
+      </Provider>
     </SafeAreaProvider>
   );
 }
