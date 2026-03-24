@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import {
   View,
   Text,
@@ -6,7 +6,10 @@ import {
   StyleSheet,
   TouchableOpacity,
 } from 'react-native';
-import { Expense } from '../types';
+import { useDispatch, useSelector } from 'react-redux';
+import { RootState } from '../store/store';
+import { setExpenses } from '../store/expenseSlice';
+import { supabase } from '../lib/supabase';
 import ExpenseCard from '../components/ExpenseCard';
 import { useAuth } from '../context/AuthContext';
 
@@ -18,69 +21,31 @@ import { useAuth } from '../context/AuthContext';
 // Usa useSelector para leer del store y useEffect para
 // despachar la carga inicial de datos desde Supabase.
 // ============================================================
-const DUMMY_EXPENSES: Expense[] = [
-  {
-    id: '1',
-    title: 'Café y desayuno',
-    amount: 85,
-    category: 'food',
-    createdAt: '2025-03-22T09:15:00Z',
-  },
-  {
-    id: '2',
-    title: 'Transporte Uber',
-    amount: 62,
-    category: 'transport',
-    createdAt: '2025-03-22T08:00:00Z',
-  },
-  {
-    id: '3',
-    title: 'Cine con amigos',
-    amount: 150,
-    category: 'entertainment',
-    createdAt: '2025-03-21T20:30:00Z',
-  },
-  {
-    id: '4',
-    title: 'Supermercado semanal',
-    amount: 480,
-    category: 'food',
-    createdAt: '2025-03-21T16:00:00Z',
-  },
-  {
-    id: '5',
-    title: 'Gasolina',
-    amount: 320,
-    category: 'transport',
-    createdAt: '2025-03-20T11:00:00Z',
-  },
-  {
-    id: '6',
-    title: 'Suscripción streaming',
-    amount: 199,
-    category: 'entertainment',
-    createdAt: '2025-03-19T00:00:00Z',
-  },
-  {
-    id: '7',
-    title: 'Medicamento',
-    amount: 95,
-    category: 'other',
-    createdAt: '2025-03-18T14:00:00Z',
-  },
-];
-
-function calculateTotal(expenses: Expense[]): number {
-  return expenses.reduce((sum, e) => sum + e.amount, 0);
-}
 
 export default function ExpensesScreen() {
+  const dispatch = useDispatch();
   const { user, logout } = useAuth();
 
-  // TODO (Inciso D.3): Reemplaza esta línea con useSelector
-  const expenses = DUMMY_EXPENSES;
+  // ✅ useSelector
+  const expenses = useSelector((state: RootState) => state.expenses.expenses);
 
-  const total = calculateTotal(expenses);
+  // ✅ GET desde Supabase
+  useEffect(() => {
+    async function fetchExpenses() {
+      const { data, error } = await supabase
+        .from('expenses')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (!error && data) {
+        dispatch(setExpenses(data));
+      }
+    }
+
+    fetchExpenses();
+  }, []);
+
+  const total = expenses.reduce((sum, e) => sum + e.amount, 0);
 
   function renderEmpty() {
     return (
@@ -96,25 +61,27 @@ export default function ExpensesScreen() {
 
   return (
     <View style={styles.container}>
-      {/* Resumen superior */}
       <View style={styles.summaryCard}>
         <View style={styles.summaryTop}>
           <View>
-            <Text style={styles.greetingLabel}>Hola, {user?.name ?? user?.email} 👋</Text>
+            <Text style={styles.greetingLabel}>
+              Hola, {user?.name ?? user?.email} 👋
+            </Text>
             <Text style={styles.summaryLabel}>Total del período</Text>
           </View>
           <TouchableOpacity onPress={logout} style={styles.logoutButton}>
             <Text style={styles.logoutIcon}>↩</Text>
           </TouchableOpacity>
         </View>
+
         <Text style={styles.totalAmount}>${total.toFixed(2)}</Text>
+
         <Text style={styles.expenseCount}>
           {expenses.length} gasto{expenses.length !== 1 ? 's' : ''} registrado
           {expenses.length !== 1 ? 's' : ''}
         </Text>
       </View>
 
-      {/* Lista */}
       <FlatList
         data={expenses}
         keyExtractor={item => item.id}
