@@ -2,7 +2,7 @@ import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { Text } from 'react-native';
 import { TabParamList } from '../types';
-import ExpensesScreen from '../screens/ExpensesScreen';
+import { ExpensesScreen } from '../screens/ExpensesScreen';
 import AddExpenseScreen from '../screens/AddExpenseScreen';
 
 const Tab = createBottomTabNavigator<TabParamList>();
