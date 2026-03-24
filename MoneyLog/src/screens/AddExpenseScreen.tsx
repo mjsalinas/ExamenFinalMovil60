@@ -9,9 +9,11 @@ import {
   Alert,
   TouchableOpacity,
 } from 'react-native';
-import { ExpenseCategory } from '../types';
+import { ExpenseCategory, Expense } from '../types';
 import CustomInput from '../components/CustomInput';
 import CustomButton from '../components/CustomButton';
+import { useAppDispatch, useAppSelector } from '../store/hook';
+import { addExpense, updateExpense } from '../store/slices/expenseSlice';
 
 // ============================================================
 // PANTALLA: Agregar Gasto
@@ -43,6 +45,7 @@ export default function AddExpenseScreen() {
   const [submitted, setSubmitted] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
+
   const titleError = title.trim().length === 0 ? 'El nombre del gasto es obligatorio' : '';
   const amountError =
     amount.trim() === '' || isNaN(Number(amount)) || Number(amount) <= 0
@@ -63,6 +66,15 @@ export default function AddExpenseScreen() {
 
     setIsLoading(true);
     try {
+
+      const expenseData: Expense = {
+        id: Date.now().toString(),
+        title,
+        amount: 1,
+        category,
+        createdAt: Date.now().toString(),
+        userId: Date.now().toString(),
+      }
       // TODO (Inciso D.2): Reemplaza este bloque con:
       //   - Llamada a Supabase para insertar el gasto
       //   - Dispatch de addExpense al store de Redux
