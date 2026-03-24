@@ -6,7 +6,6 @@ import {
   StyleSheet,
   TouchableOpacity,
 } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
 import { Expense } from '../types';
 import ExpenseCard from '../components/ExpenseCard';
 import { useAuth } from '../context/AuthContext';
@@ -105,7 +104,7 @@ export default function ExpensesScreen() {
             <Text style={styles.summaryLabel}>Total del período</Text>
           </View>
           <TouchableOpacity onPress={logout} style={styles.logoutButton}>
-            <Ionicons name="log-out-outline" size={22} color="#fff" />
+            <Text style={styles.logoutIcon}>↩</Text>
           </TouchableOpacity>
         </View>
         <Text style={styles.totalAmount}>${total.toFixed(2)}</Text>
@@ -171,6 +170,10 @@ const styles = StyleSheet.create({
     padding: 8,
     backgroundColor: 'rgba(255,255,255,0.15)',
     borderRadius: 10,
+  },
+  logoutIcon: {
+    fontSize: 18,
+    color: '#fff',
   },
   list: {
     paddingHorizontal: 16,

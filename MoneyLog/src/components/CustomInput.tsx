@@ -7,7 +7,6 @@ import {
   StyleSheet,
   KeyboardTypeOptions,
 } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
 import { InputType } from '../types';
 
 type Props = {
@@ -57,11 +56,9 @@ export default function CustomInput({
             onPress={() => setShowPassword(prev => !prev)}
             style={styles.eyeButton}
           >
-            <Ionicons
-              name={showPassword ? 'eye-off-outline' : 'eye-outline'}
-              size={22}
-              color="#607D8B"
-            />
+            <Text style={styles.eyeIcon}>
+              {showPassword ? '🙈' : '👁'}
+            </Text>
           </TouchableOpacity>
         )}
       </View>
@@ -102,6 +99,9 @@ const styles = StyleSheet.create({
   },
   eyeButton: {
     padding: 4,
+  },
+  eyeIcon: {
+    fontSize: 18,
   },
   errorText: {
     fontSize: 12,

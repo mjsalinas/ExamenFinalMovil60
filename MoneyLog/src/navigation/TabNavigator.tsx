@@ -1,6 +1,6 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { Ionicons } from '@expo/vector-icons';
+import { Text } from 'react-native';
 import { TabParamList } from '../types';
 import ExpensesScreen from '../screens/ExpensesScreen';
 import AddExpenseScreen from '../screens/AddExpenseScreen';
@@ -34,9 +34,7 @@ export default function TabNavigator() {
         component={ExpensesScreen}
         options={{
           title: 'Mis Gastos',
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="wallet-outline" size={size} color={color} />
-          ),
+          tabBarIcon: () => <Text style={{ fontSize: 20 }}>💰</Text>,
         }}
       />
       <Tab.Screen
@@ -44,9 +42,7 @@ export default function TabNavigator() {
         component={AddExpenseScreen}
         options={{
           title: 'Agregar',
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="add-circle-outline" size={size} color={color} />
-          ),
+          tabBarIcon: () => <Text style={{ fontSize: 20 }}>➕</Text>,
         }}
       />
     </Tab.Navigator>
