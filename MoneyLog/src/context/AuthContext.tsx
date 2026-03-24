@@ -4,12 +4,10 @@ import { supabase } from '../supabase/supabaseClient';
 
 // ============================================================
 // AUTH CONTEXT
-// ============================================================
 // NOTA PARA EL ESTUDIANTE:
 // Las funciones login, register y logout contienen una implementación
 // temporal (mock). Tu tarea es reemplazarlas con llamadas reales a
 // Supabase Auth en los incisos del Examen Final.
-// ============================================================
 
 type AuthContextType = {
   user: User | null;
